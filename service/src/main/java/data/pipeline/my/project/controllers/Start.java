@@ -9,7 +9,7 @@ import java.util.UUID;
 @RestController
 public class Start {
 
-    @GetMapping
+    @GetMapping(path="/start")
     public Mono<String> start(){
         return Mono.just(UUID.randomUUID().toString());
     }
