@@ -1,22 +1,37 @@
 package data.pipeline.my.project.services.kafka;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.kafka.support.SendResult;
-import org.springframework.stereotype.Service;
-import org.springframework.util.concurrent.ListenableFuture;
+import org.springframework.stereotype.Component;
 
-@Service
-@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
+@Component
 public class Producer {
 
+    @Value("${topic.name}")
+    private String orderTopic;
+
+    private final ObjectMapper objectMapper;
     private final KafkaTemplate<String, String> kafkaTemplate;
 
-    public Producer(KafkaTemplate<String, String> kafkaTemplate) {
+    @Autowired
+    public Producer(KafkaTemplate<String, String> kafkaTemplate, ObjectMapper objectMapper) {
         this.kafkaTemplate = kafkaTemplate;
+        this.objectMapper = objectMapper;
     }
 
-    public ListenableFuture<SendResult<String, String>> sendMessage(String topic, String key, String message) {
+    public String sendMessage(String foodOrder) throws JsonProcessingException {
+        String orderAsMessage = objectMapper.writeValueAsString(foodOrder);
+        kafkaTemplate.send(orderTopic, orderAsMessage);
 
-        return this.kafkaTemplate.send(topic, key, message);
+//        log.info("food order produced {}", orderAsMessage);
+        System.out.println("+++++++++++++++++++++++++++++++");
+        System.out.println("+++++++++++++++++++++++++++++++");
+        System.out.println("food order produced");
+        System.out.println("+++++++++++++++++++++++++++++++");
+        System.out.println("+++++++++++++++++++++++++++++++");
+        return "message sent";
     }
 }
