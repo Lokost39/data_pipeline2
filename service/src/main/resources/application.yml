@@ -9,3 +9,8 @@ springdoc:
 
 topic:
   name: t.food.order
+
+spring:
+  kafka:
+    consumer:
+      group-id: "default"
