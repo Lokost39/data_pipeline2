@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @Component
 public class Producer {
@@ -22,16 +24,29 @@ public class Producer {
         this.objectMapper = objectMapper;
     }
 
-    public String sendMessage(String foodOrder) throws JsonProcessingException {
-        String orderAsMessage = objectMapper.writeValueAsString(foodOrder);
-        kafkaTemplate.send(orderTopic, orderAsMessage);
+    public Mono<String> sendMessage(String foodOrder) {
 
-//        log.info("food order produced {}", orderAsMessage);
-        System.out.println("+++++++++++++++++++++++++++++++");
-        System.out.println("+++++++++++++++++++++++++++++++");
-        System.out.println("food order produced");
-        System.out.println("+++++++++++++++++++++++++++++++");
-        System.out.println("+++++++++++++++++++++++++++++++");
-        return "message sent";
+        return Mono.just(foodOrder)
+                .flatMap(this::writeValueAsString)
+                .flatMap(o -> Mono.just(kafkaTemplate.send(orderTopic, o)))
+                .flatMap(o -> {
+                    System.out.println("+++++++++++++++++++++++++++++++");
+                    System.out.println("+++++++++++++++++++++++++++++++");
+                    System.out.println("food order produced");
+                    System.out.println("+++++++++++++++++++++++++++++++");
+                    System.out.println("+++++++++++++++++++++++++++++++");
+                    return Mono.just("send message");
+                })
+        ;
+    }
+
+    private Mono<String> writeValueAsString(String foodOrder) {
+        try {
+            return Mono.just(objectMapper.writeValueAsString(foodOrder));
+        } catch (JsonProcessingException e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
     }
 }

@@ -17,8 +17,7 @@ public class Start implements StartApi {
     @Autowired
     Producer producer;
 
-    public Mono<String> start() throws JsonProcessingException {
-        producer.sendMessage(UUID.randomUUID().toString());
-        return Mono.just(UUID.randomUUID().toString());
+    public Mono<String> start() {
+        return producer.sendMessage(UUID.randomUUID().toString());
     }
 }
