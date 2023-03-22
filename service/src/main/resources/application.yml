@@ -14,3 +14,18 @@ spring:
   kafka:
     consumer:
       group-id: "default"
+## default connection pool
+  datasource:
+    hikari:
+      connectionTimeout: 20000
+      maximumPoolSize: 5
+
+  ## PostgreSQL
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: habrpguser
+    password: pgpwd4habr
+
+  #drop n create table again, good for testing, comment this in production
+  jpa:
+    hibernate:
+      ddl-auto: create
